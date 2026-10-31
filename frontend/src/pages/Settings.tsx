@@ -31,42 +31,43 @@ export default function Settings() {
   }
 
   return (
-    <div className="p-6 md:p-8 max-w-3xl mx-auto">
-      <header className="mb-6">
-        <h1 className="text-2xl font-extrabold text-paper mt-1">Preferences</h1>
+    <div className="p-6 md:p-8 max-w-3xl mx-auto space-y-6">
+      <header>
+        <h1 className="text-2xl font-bold text-ink">Settings</h1>
+        <p className="text-sm text-ink-soft mt-1">Preferences and demo mode.</p>
       </header>
       <Card>
         <CardHeader><CardTitle>Voice and language</CardTitle></CardHeader>
         <div className="space-y-4">
           <div>
-            <label className="text-xs text-ink/70">Preferred language</label>
+            <label className="text-xs text-ink-soft">Preferred language</label>
             <Select value={prefs?.languageCode ?? "hi-IN"} onChange={(e) => save({ languageCode: e.target.value })} className="w-full mt-1">
               {LANGS.map((l) => <option key={l.code} value={l.code}>{l.label}</option>)}
             </Select>
           </div>
           <div>
-            <label className="text-xs text-ink/70">TTS voice (Sarvam Bulbul speaker)</label>
+            <label className="text-xs text-ink-soft">TTS voice (Sarvam Bulbul speaker)</label>
             <Input value={voice} onChange={(e) => setVoice(e.target.value)} className="mt-1" />
             <Button size="sm" className="mt-2" onClick={() => save({ ttsVoice: voice })}>Save voice</Button>
           </div>
           <div>
-            <label className="text-xs text-ink/70">Theme</label>
+            <label className="text-xs text-ink-soft">Theme</label>
             <Select value={theme} onChange={(e) => { setTheme(e.target.value); save({ theme: e.target.value }); }} className="w-full mt-1">
-              <option value="dark">Dark (desk)</option>
+              <option value="dark">Dark</option>
               <option value="light">Light</option>
             </Select>
           </div>
           <label className="flex items-center gap-2 text-sm text-ink">
-            <input type="checkbox" checked={prefs?.autoPlayTts ?? true} onChange={(e) => save({ autoPlayTts: e.target.checked })} />
+            <input type="checkbox" checked={prefs?.autoPlayTts ?? true} onChange={(e) => save({ autoPlayTts: e.target.checked })} className="accent-neon" />
             Auto-play voice replies
           </label>
         </div>
       </Card>
-      <Card className="mt-5">
+      <Card>
         <CardHeader><CardTitle>Demo mode</CardTitle></CardHeader>
-        <div className="text-sm text-ink/70 space-y-2">
+        <div className="text-sm text-ink-soft space-y-2">
           <p>DIA runs fully without external credentials using mock providers for the LLM, STT, TTS and translation.</p>
-          <p>Add <code className="bg-paper-2 px-1 rounded">SARVAM_API_KEY</code> and an LLM key in <code className="bg-paper-2 px-1 rounded">.env</code> to switch to live providers. Model IDs are env-configurable.</p>
+          <p>Add <code className="bg-surface-2 px-1.5 py-0.5 rounded text-neon text-xs">SARVAM_API_KEY</code> and an LLM key in <code className="bg-surface-2 px-1.5 py-0.5 rounded text-neon text-xs">.env</code> to switch to live providers. Model IDs are env-configurable.</p>
         </div>
       </Card>
     </div>

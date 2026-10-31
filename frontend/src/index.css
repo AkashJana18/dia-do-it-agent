@@ -5,22 +5,41 @@
 @layer base {
   html, body, #root { height: 100%; }
   body {
-    @apply bg-desk text-paper font-sans antialiased;
+    @apply bg-base text-ink font-sans antialiased;
   }
-  .num { font-variant-numeric: tabular-nums; }
-  * { @apply border-ink/10; }
+  * { @apply border-line; }
+  ::selection { background: rgba(34,211,238,0.25); color: #f5f5f7; }
 }
 
 @layer components {
-  .paper-panel {
-    @apply bg-paper text-ink rounded-sm shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.35)];
-    background-image: repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(26,22,18,0.06) 23px, rgba(26,22,18,0.06) 24px);
+  .card {
+    @apply bg-surface rounded-lg border border-line transition-colors;
   }
-
-  .stamp {
-    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold tracking-widest uppercase border-2;
+  .card-hover:hover {
+    @apply border-line-bright;
   }
-  .stamp-approved { @apply border-green-700 text-green-700 bg-green-50; }
-  .stamp-pending { @apply border-amber-700 text-amber-700 bg-amber-50; }
-  .stamp-rejected { @apply border-red-700 text-red-700 bg-red-50; }
+  .glow-neon:focus-within, .glow-neon:focus {
+    box-shadow: 0 0 0 1px rgba(34,211,238,0.5), 0 0 16px rgba(34,211,238,0.12);
+  }
+  .btn-primary {
+    @apply bg-neon text-base font-semibold rounded-md px-4 py-2 transition hover:bg-neon/90 focus:outline-none focus:ring-2 focus:ring-neon/50;
+  }
+  .btn-secondary {
+    @apply bg-surface-2 text-ink font-medium rounded-md px-4 py-2 border border-line transition hover:border-line-bright focus:outline-none focus:ring-2 focus:ring-neon/30;
+  }
+  .btn-ghost {
+    @apply text-ink-soft hover:text-ink transition;
+  }
+  .input {
+    @apply bg-surface-2 border border-line rounded-md px-3 py-2 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-neon/60 focus:ring-1 focus:ring-neon/30 transition;
+  }
+  .badge {
+    @apply text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border;
+  }
+  .badge-neon { @apply badge border-neon/40 text-neon bg-neon/5; }
+  .badge-pink { @apply badge border-neon-2/40 text-neon-2 bg-neon-2/5; }
+  .badge-success { @apply badge border-success/40 text-success bg-success/5; }
+  .badge-warn { @apply badge border-warning/40 text-warning bg-warning/5; }
+  .badge-danger { @apply badge border-danger/40 text-danger bg-danger/5; }
+  .num { font-variant-numeric: tabular-nums; }
 }

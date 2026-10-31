@@ -13,34 +13,32 @@ import { LayoutDashboard, MessageSquare, Users, Megaphone, Tag, BarChart3, Histo
 
 const NAV = [
   { to: "/overview", label: "Overview", icon: LayoutDashboard },
-  { to: "/assistant", label: "AI Assistant", icon: MessageSquare },
+  { to: "/assistant", label: "Assistant", icon: MessageSquare },
   { to: "/customers", label: "Customers", icon: Users },
   { to: "/campaigns", label: "Campaigns", icon: Megaphone },
   { to: "/offers", label: "Offers", icon: Tag },
   { to: "/analytics", label: "Analytics", icon: BarChart3 },
-  { to: "/activity", label: "Activity History", icon: History },
+  { to: "/activity", label: "Activity", icon: History },
   { to: "/settings", label: "Settings", icon: SettingsIcon },
 ];
 
 function Shell({ children }: { children: React.ReactNode }) {
   const [merchant, setMerchant] = useState<any>(null);
-  useEffect(() => {
-    api("/api/auth/me").then((d) => setMerchant(d.merchant)).catch(() => {});
-  }, []);
+  useEffect(() => { api("/api/auth/me").then((d) => setMerchant(d.merchant)).catch(() => {}); }, []);
   return (
     <div className="flex h-full">
-      <aside className="hidden md:flex w-60 flex-col bg-desk border-r border-white/5">
-        <div className="px-5 py-6">
-          <div className="text-xl font-extrabold tracking-tight text-paper">DIA</div>
-          <div className="text-[11px] tracking-widest text-gold uppercase mt-1">Do-It Agent</div>
+      <aside className="hidden md:flex w-56 flex-col bg-surface border-r border-line">
+        <div className="px-5 py-5 border-b border-line">
+          <div className="text-lg font-bold tracking-tight text-ink">DIA</div>
+          <div className="text-[10px] tracking-widest text-neon uppercase mt-0.5">Do-It Agent</div>
         </div>
-        <nav className="flex-1 px-3 space-y-1">
+        <nav className="flex-1 px-3 py-4 space-y-1">
           {NAV.map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-sm text-sm font-medium transition focus:outline-none focus:ring-2 focus:ring-margin ${isActive ? "bg-margin text-paper" : "text-paper/70 hover:bg-white/5 hover:text-paper"}`
+                `flex items-center gap-3 px-3 py-2 rounded-md text-sm transition focus:outline-none focus:ring-1 focus:ring-neon/40 ${isActive ? "bg-neon/10 text-neon border border-neon/30 shadow-[0_0_8px_rgba(34,211,238,0.1)]" : "text-ink-soft hover:text-ink hover:bg-surface-2 border border-transparent"}`
               }
             >
               <n.icon size={16} />
@@ -48,14 +46,14 @@ function Shell({ children }: { children: React.ReactNode }) {
             </NavLink>
           ))}
         </nav>
-        <div className="px-5 py-4 text-xs text-paper/70 border-t border-white/5">
+        <div className="px-5 py-3 text-xs text-ink-dim border-t border-line truncate">
           {merchant ? merchant.name : "Demo merchant"}
         </div>
       </aside>
       <main className="flex-1 overflow-auto pb-16 md:pb-0">{children}</main>
-      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-desk/95 border-t border-white/10 flex justify-around py-2">
+      <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-surface/95 backdrop-blur border-t border-line flex justify-around py-2">
         {NAV.map((n) => (
-          <NavLink key={n.to} to={n.to} className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] ${isActive ? "text-margin" : "text-paper/60"}`}>
+          <NavLink key={n.to} to={n.to} className={({ isActive }) => `flex flex-col items-center gap-0.5 text-[10px] ${isActive ? "text-neon" : "text-ink-dim"}`}>
             <n.icon size={18} />
             {n.label.split(" ")[0]}
           </NavLink>
@@ -80,7 +78,7 @@ export default function App() {
         .catch(() => setReady(true));
     } else setReady(true);
   }, []);
-  if (!ready) return <div className="h-full grid place-items-center text-paper/70">Loading DIA...</div>;
+  if (!ready) return <div className="h-full grid place-items-center text-ink-soft text-sm">Loading DIA...</div>;
   return (
     <BrowserRouter>
       <Shell>
