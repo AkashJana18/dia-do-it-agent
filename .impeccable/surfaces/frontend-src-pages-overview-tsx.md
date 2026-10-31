@@ -1,0 +1,20 @@
+---
+version: 1
+slug: "frontend-src-pages-overview-tsx"
+primary_target: "frontend/src/pages/Overview.tsx"
+related_targets: []
+---
+
+THESIS: DIA is the ledger that writes itself and asks before posting a doubt; the first viewport proves that a spoken business request becomes a visible, approvable action on a real register, not a chat reply. It refuses the generic admin dashboard and the dark-cyber AI look.
+
+OWN-WORLD: The red-cloth bahi-khata opened on the counter under one lamp. Dark espresso desk as the ground, warm cream paper panels as the content surface, a red margin line, ink-black type, and gold totals. Three inks only. No glass, no gradients, no neon. Type in one size system: weight and case carry rank, size never does (Mukta for Latin and Devanagari; tabular numerals).
+
+STORY: The merchant understands DIA as the trusted bookkeeper. Each agent tool is a line being written; each approval is a stamp that cannot be self-issued; each execution is a posted entry with a receipt number. The merchant leaves knowing what was done and why.
+
+FIRST VIEWPORT: Dark desk ground with a cream paper panel filling most of the surface. Top line: the shop name and today's date in the khata header. Left column: the conversation rail where the request is spoken and the agent's lines appear as ink entries. Right column: the working entry being drafted, with its offer, audience and message. Bottom of the right panel: the red margin line, then the approval stamp area. The primary action sits at the bottom right of the right panel, as a stamp button.
+
+FORM: Impeccable's pick, the bahi-khata ledger. Seed key b550ce70. Code-led build.
+
+FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, DESIGN.md, and every shipping raster carrying its provenance.
+
+Scope: assistant-first Overview screen of DIA. Mode: operate. Audience: hackathon judges plus the demo merchant. Constraints: voice-first, multilingual, dark-first scene via the desk ground, no template dashboard, no hype, no gradient or glass chrome, no cyber neon. Resolves to light paper content on a dark desk.

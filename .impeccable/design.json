@@ -1,0 +1,172 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-31T00:00:00Z",
+  "title": "Design System: DIA (Do-It Agent)",
+  "extensions": {
+    "colorMeta": {
+      "desk": { "role": "neutral", "displayName": "Espresso Desk", "canonical": "#0e0c0a", "tonalRamp": ["#0a0806", "#1a1612", "#2a241e", "#3a332a", "#5a5044", "#7a6e5e", "#a09480", "#c8bca8"] },
+      "paper": { "role": "neutral", "displayName": "Cream Paper", "canonical": "#f4ecdc", "tonalRamp": ["#2a2418", "#4a4030", "#6a5e48", "#8a7c60", "#a89878", "#c8b898", "#e4d8bc", "#f4ecdc"] },
+      "paper-2": { "role": "neutral", "displayName": "Cream Paper 2", "canonical": "#efe3cc", "tonalRamp": ["#2a2418", "#4a4030", "#6a5e48", "#8a7c60", "#a89878", "#c8b898", "#e4d4b8", "#efe3cc"] },
+      "ink": { "role": "neutral", "displayName": "Ink", "canonical": "#1a1612", "tonalRamp": ["#0a0806", "#1a1612", "#2a241e", "#3a332a", "#5a5044", "#7a6e5e", "#a09480", "#c8bca8"] },
+      "ink-soft": { "role": "neutral", "displayName": "Ink Soft", "canonical": "#3a332a", "tonalRamp": ["#0a0806", "#1a1612", "#2a241e", "#3a332a", "#5a5044", "#7a6e5e", "#a09480", "#c8bca8"] },
+      "margin": { "role": "primary", "displayName": "Margin Red", "canonical": "#b01e2a", "tonalRamp": ["#3a0810", "#5a1018", "#7a1820", "#9a1e24", "#b01e2a", "#c83840", "#e05860", "#f08890"] },
+      "gold": { "role": "secondary", "displayName": "Total Gold", "canonical": "#b8860b", "tonalRamp": ["#2a1e02", "#4a3404", "#6a4a06", "#8a6008", "#a8780a", "#b8860b", "#d0a040", "#e8c070"] },
+      "credit": { "role": "tertiary", "displayName": "Credit Blue", "canonical": "#1e4a8a", "tonalRamp": ["#0a1a3a", "#102a5a", "#163a7a", "#1e4a8a", "#3060a8", "#5080c0", "#80a8d8", "#b0c8ec"] },
+      "success": { "role": "neutral", "displayName": "Success Green", "canonical": "#15803d", "tonalRamp": ["#0a2a14", "#104020", "#15602a", "#15803d", "#2a9850", "#50b070", "#80c898", "#b0e0c0"] },
+      "warning": { "role": "neutral", "displayName": "Warning Amber", "canonical": "#b45309", "tonalRamp": ["#2a1a02", "#4a3004", "#6a4806", "#8a5e08", "#a8700a", "#b45309", "#d07830", "#e8a860"] },
+      "danger": { "role": "neutral", "displayName": "Danger Red", "canonical": "#b91c1c", "tonalRamp": ["#3a0810", "#5a1018", "#7a1820", "#9a1e24", "#b91c1c", "#d04040", "#e06868", "#f09898"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "The DIA wordmark in the sidebar." },
+      "headline": { "displayName": "Headline", "purpose": "Page titles." },
+      "title": { "displayName": "Title", "purpose": "Card titles and section headers." },
+      "body": { "displayName": "Body", "purpose": "Default reading text, list rows, form labels." },
+      "label": { "displayName": "Label", "purpose": "Section labels, table headers, status chips." },
+      "caption": { "displayName": "Caption", "purpose": "Tool-event chips, receipt numbers, timestamps." }
+    },
+    "shadows": [
+      { "name": "paper-panel", "value": "0 1px 0 rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35)", "purpose": "The single elevation; used by every card and panel. The 1px bottom edge is a ruled line." }
+    ],
+    "motion": [
+      { "name": "transition-default", "value": "150ms cubic-bezier(0.4, 0, 0.2, 1)", "purpose": "Default state transition on buttons and interactive elements." },
+      { "name": "pulse", "value": "animate-pulse", "purpose": "Recording state on the record button." },
+      { "name": "smooth-scroll", "value": "scroll-behavior: smooth", "purpose": "Chat area auto-scroll to latest message." }
+    ],
+    "breakpoints": [
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" }
+    ],
+    "ruledLines": {
+      "value": "repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(26,22,18,0.06) 23px, rgba(26,22,18,0.06) 24px)",
+      "purpose": "Faint horizontal rules inside paper panels."
+    }
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Primary action button on paper or desk.",
+      "html": "<button class=\"ds-btn-primary\">APPROVE & SEND</button>",
+      "css": ".ds-btn-primary { background: #b01e2a; color: #f4ecdc; padding: 0 16px; height: 40px; border: none; border-radius: 2px; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.025em; text-transform: none; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), opacity 150ms cubic-bezier(0.4,0,0.2,1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; } .ds-btn-primary:hover { background: rgba(176, 30, 42, 0.9); } .ds-btn-primary:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; } .ds-btn-primary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Secondary action on paper surfaces.",
+      "html": "<button class=\"ds-btn-secondary\">Cancel</button>",
+      "css": ".ds-btn-secondary { background: #efe3cc; color: #1a1612; padding: 0 16px; height: 40px; border: none; border-radius: 2px; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.025em; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; } .ds-btn-secondary:hover { background: #f4ecdc; } .ds-btn-secondary:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; } .ds-btn-secondary:disabled { opacity: 0.5; pointer-events: none; }"
+    },
+    {
+      "name": "Ghost Button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Transparent action for use on the desk ground.",
+      "html": "<button class=\"ds-btn-ghost\">New conversation</button>",
+      "css": ".ds-btn-ghost { background: transparent; color: #f4ecdc; padding: 0 16px; height: 40px; border: none; border-radius: 2px; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.025em; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; } .ds-btn-ghost:hover { background: rgba(255, 255, 255, 0.05); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; }"
+    },
+    {
+      "name": "Stamp Button",
+      "kind": "button",
+      "refersTo": "button-stamp",
+      "description": "Stamp-style action with red margin border.",
+      "html": "<button class=\"ds-btn-stamp\">Reject</button>",
+      "css": ".ds-btn-stamp { background: transparent; color: #b01e2a; padding: 0 12px; height: 40px; border: 2px solid #b01e2a; border-radius: 2px; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 600; letter-spacing: 0.025em; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1), color 150ms cubic-bezier(0.4,0,0.2,1); display: inline-flex; align-items: center; justify-content: center; gap: 8px; } .ds-btn-stamp:hover { background: #b01e2a; color: #f4ecdc; } .ds-btn-stamp:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; }"
+    },
+    {
+      "name": "Input Field",
+      "kind": "input",
+      "refersTo": "input-field",
+      "description": "Text input on paper surfaces.",
+      "html": "<input class=\"ds-input\" placeholder=\"Search name or phone\" />",
+      "css": ".ds-input { background: rgba(244, 236, 220, 0.6); color: #1a1612; border: 1px solid rgba(26, 22, 18, 0.2); border-radius: 2px; padding: 0 12px; height: 40px; width: 100%; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; } .ds-input::placeholder { color: rgba(26, 22, 18, 0.7); } .ds-input:focus { outline: none; box-shadow: 0 0 0 2px #b01e2a; }"
+    },
+    {
+      "name": "Paper Card",
+      "kind": "card",
+      "refersTo": "card",
+      "description": "Cream paper panel with the single shadow and ruled lines.",
+      "html": "<div class=\"ds-card\"><h3 class=\"ds-card-title\">Today's entries</h3><p class=\"ds-card-body\">Revenue, orders, and averages for the day.</p></div>",
+      "css": ".ds-card { background-color: #f4ecdc; color: #1a1612; border-radius: 2px; padding: 20px; box-shadow: 0 1px 0 rgba(0,0,0,0.4), 0 8px 24px rgba(0,0,0,0.35); background-image: repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(26,22,18,0.06) 23px, rgba(26,22,18,0.06) 24px); border: 1px solid rgba(26,22,18,0.1); } .ds-card-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; } .ds-card-body { font-size: 14px; color: rgba(26,22,18,0.7); margin: 0; }"
+    },
+    {
+      "name": "Navigation Item (Active)",
+      "kind": "nav",
+      "refersTo": "nav-item-active",
+      "description": "Active sidebar nav item on the desk ground.",
+      "html": "<a class=\"ds-nav-active\" href=\"#\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><rect x=\"3\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"3\" width=\"7\" height=\"7\"/><rect x=\"14\" y=\"14\" width=\"7\" height=\"7\"/><rect x=\"3\" y=\"14\" width=\"7\" height=\"7\"/></svg> Overview</a>",
+      "css": ".ds-nav-active { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 2px; background: #b01e2a; color: #f4ecdc; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 14px; font-weight: 500; text-decoration: none; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-nav-active:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; }"
+    },
+    {
+      "name": "Stamp Badge (Pending)",
+      "kind": "chip",
+      "refersTo": "stamp-pending",
+      "description": "Status stamp badge with square corners.",
+      "html": "<span class=\"ds-stamp-pending\">PENDING</span>",
+      "css": ".ds-stamp-pending { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border: 2px solid #b45309; color: #b45309; background: #fffbeb; border-radius: 0; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; }"
+    },
+    {
+      "name": "Tool-Event Chip",
+      "kind": "chip",
+      "refersTo": "tool-event-completed",
+      "description": "Chip for a completed agent tool call.",
+      "html": "<span class=\"ds-chip-ok\">get_sales_metrics ✓</span>",
+      "css": ".ds-chip-ok { display: inline-flex; align-items: center; gap: 4px; padding: 2px 8px; border: 1px solid rgba(21, 128, 61, 0.4); color: #15803d; background: #f0fdf4; border-radius: 2px; font-family: Mukta, ui-sans-serif, system-ui, sans-serif; font-size: 10px; font-weight: 700; letter-spacing: 0.05em; }"
+    },
+    {
+      "name": "Record Button",
+      "kind": "button",
+      "refersTo": "record-button",
+      "description": "Fully round microphone button.",
+      "html": "<button class=\"ds-record\" aria-label=\"Record\"><svg width=\"18\" height=\"18\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><path d=\"M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z\"/><path d=\"M19 10v2a7 7 0 0 1-14 0v-2\"/></svg></button>",
+      "css": ".ds-record { width: 44px; height: 44px; border-radius: 9999px; border: none; background: rgba(244, 236, 220, 0.1); color: #f4ecdc; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; transition: background 150ms cubic-bezier(0.4,0,0.2,1); } .ds-record:hover { background: rgba(244, 236, 220, 0.2); } .ds-record:focus-visible { outline: none; box-shadow: 0 0 0 2px #b01e2a; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Red-Cloth Bahi-Khata",
+    "overview": "DIA is a voice-first autonomous business teammate for small merchants, and its interface is the red-cloth bahi-khata opened on the counter under one lamp. The ground is a dark espresso desk; the content lives on warm cream paper panels; a red margin line runs through the page; type is ink-black; totals are gold. The merchant reads it the way they read a ledger, line by line, and DIA writes each agent step as a line being posted. There is no generic admin dashboard and no dark-cyber AI look: no glass, no gradients, no neon, no purple. Depth comes from the paper panel resting on the desk, not from blur or glow. Hierarchy is carried by weight and case, not by size alone, so the type scale stays narrow. Money and counts always use tabular numerals.",
+    "keyCharacteristics": [
+      "Dark espresso desk ground (#0e0c0a) with warm cream paper panels (#f4ecdc) as the only content surface.",
+      "Red margin line (#b01e2a) used for primary actions, active navigation, pending approvals, and the margin rule.",
+      "Three text inks only: ink (#1a1612), ink-soft (#3a332a), and margin red for emphasis.",
+      "Gold (#b8860b) reserved for totals and the wordmark; never for body text.",
+      "Mukta for both Latin and Devanagari, weights 300-800; tabular numerals for all numbers.",
+      "Sharp corners (2px) everywhere except the fully round record button; stamps keep square corners.",
+      "One shadow only: the paper-panel drop; everything else is flat."
+    ],
+    "rules": [
+      { "name": "The Three Inks Rule", "body": "Body text on paper uses only Ink and Ink Soft; Margin Red is reserved for actions, status, and the margin line. Gold is an accent for totals and the wordmark, never for body text.", "section": "colors" },
+      { "name": "The Margin Is Rare Rule", "body": "The red margin is used on no more than one primary action and the active nav item per screen. Its rarity is what makes a stamp feel like a stamp.", "section": "colors" },
+      { "name": "The No Glass Rule", "body": "No glass, gradients, or neon anywhere. Depth comes from the paper panel resting on the desk ground, never from blur or glow.", "section": "colors" },
+      { "name": "The Weight Carries Rank Rule", "body": "Hierarchy is carried by weight and case, not by size alone; sizes stay within a narrow 10-24px band so the ledger stays compact.", "section": "typography" },
+      { "name": "The Tabular Numerals Rule", "body": "Every currency value and count uses tabular numerals via the .num utility. Never use proportional numerals for money.", "section": "typography" },
+      { "name": "The One Family Rule", "body": "Mukta is the only text face; Devanagari and Latin share one voice. Mono is reserved for code.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Surfaces are flat at rest. The paper-panel shadow appears only on content surfaces (cards, message bubbles, preview panels). Nav, buttons, inputs, and chips are flat.", "section": "elevation" },
+      { "name": "The One Shadow Rule", "body": "There is exactly one shadow value in the system. Do not invent new elevations; if a surface needs separation, use a border or a tonal step instead.", "section": "elevation" },
+      { "name": "The Sharp Corners Rule", "body": "2px radius everywhere. Stamps and badges are square. Only the record button is round.", "section": "shapes" },
+      { "name": "The Thin Border Rule", "body": "Borders are 1px at low opacity (ink/10 on paper, white/5 on desk). A 2px border is reserved for stamps and pending-approval cards.", "section": "shapes" }
+    ],
+    "dos": [
+      "Do use the espresso desk as the ground and cream paper as the only content surface.",
+      "Do keep Margin Red rare: one primary action and the active nav item per screen.",
+      "Do use Mukta for both Latin and Devanagari, and tabular numerals for all money and counts.",
+      "Do carry hierarchy with weight and case; keep sizes in the 10-24px band.",
+      "Do use the single paper-panel shadow for content surfaces; keep nav, buttons, inputs, and chips flat.",
+      "Do use 2px radius everywhere; square corners for stamps and badges.",
+      "Do use 1px ink/10 borders on paper and white/5 on desk; reserve 2px for stamps and pending-approval cards.",
+      "Do use the Margin Red 2px focus ring on every interactive element, with focus:outline-none.",
+      "Do keep the mobile bottom nav visible and clear it with bottom padding on main."
+    ],
+    "donts": [
+      "Don't use glass, blur, gradients, or neon. Depth comes from the paper panel on the desk.",
+      "Don't introduce a second shadow or a new elevation level.",
+      "Don't use any typeface other than Mukta (and mono for code).",
+      "Don't use proportional numerals for money or counts.",
+      "Don't flood a screen with Margin Red; its rarity is the point.",
+      "Don't use rounded corners larger than 2px except the record button.",
+      "Don't add a multi-merchant switcher or template dashboard chrome; the UI is a single merchant's khata.",
+      "Don't fabricate metrics or numbers; every figure comes from the database or a tool result."
+    ]
+  }
+}

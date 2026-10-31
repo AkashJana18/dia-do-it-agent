@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DIA: direction hand</title>
+<style>
+  :root {
+    --ink-0: #0a0e1a;
+    --ink-1: #0d1120;
+    --panel: #10162a;
+    --line: #232b45;
+    --porcelain: #f4f6fb;
+    --muted: #8f9bb8;
+    --scarlet: #e21d2d;
+    --cobalt: #1e5bff;
+    --amber: #f5a623;
+    --green: #22b14c;
+    --gold: #c9a227;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: var(--ink-0);
+    color: var(--porcelain);
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    padding: 48px 40px 80px;
+    max-width: 1240px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 28px; letter-spacing: 0.02em; font-weight: 700; }
+  .sub { color: var(--muted); margin: 8px 0 40px; font-size: 14px; line-height: 1.5; max-width: 760px; }
+  .kicker {
+    font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 10px; font-weight: 700;
+  }
+  .lead-card {
+    border: 1px solid var(--line);
+    border-top: 4px solid var(--scarlet);
+    background: var(--panel);
+    padding: 28px;
+    margin-bottom: 28px;
+  }
+  .alternate-row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .alternate-row.three { grid-template-columns: repeat(3, 1fr); }
+  .card {
+    border: 1px solid var(--line);
+    background: var(--panel);
+    padding: 22px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .card h2 { font-size: 17px; letter-spacing: 0.01em; }
+  .case { color: var(--muted); font-size: 13px; line-height: 1.5; }
+  .rows { font-size: 12.5px; line-height: 1.55; color: #c7cfe2; display: grid; gap: 8px; margin-top: 6px; }
+  .rows b { color: var(--porcelain); font-weight: 600; }
+  .chip {
+    display: inline-block; font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+    border: 1px solid var(--line); color: var(--muted); padding: 3px 8px; margin-right: 6px; font-weight: 700;
+  }
+  .chip.win { color: #0a0e1a; background: var(--green); border-color: var(--green); }
+  .chip.comp { color: #0a0e1a; background: var(--amber); border-color: var(--amber); }
+  .chip.dec { opacity: 0.7; }
+  .raises { border-left: 3px solid var(--scarlet); padding-left: 14px; margin-top: 10px; display: grid; gap: 6px; }
+  .raises span { font-size: 12.5px; color: #c7cfe2; line-height: 1.5; }
+  .raises b { color: var(--porcelain); }
+  .boardimg { width: 100%; border: 1px solid var(--line); margin-top: 4px; display: block; }
+  .wire {
+    width: 100%; height: 150px; border: 1px solid var(--line); margin-top: 4px;
+    background: repeating-linear-gradient(180deg, #10162a 0 23px, #141b33 23px 24px);
+    position: relative; overflow: hidden;
+  }
+  .wire .w2 { position: absolute; inset: 18px; grid-template-columns: 38% 1fr; display: grid; gap: 10px; }
+  .wire .sx { border: 1px solid rgba(244,246,251,0.25); }
+  .route { stroke: var(--scarlet); stroke-width: 3; fill: none; }
+  .tick { stroke: #f4f6fb; stroke-width: 2.4; }
+  .interchange { fill: none; stroke: var(--amber); stroke-width: 2.5; }
+  .quiet { color: var(--muted); }
+  .canon {
+    border: 1px dashed var(--line); padding: 18px 22px; margin-top: 20px;
+    color: var(--muted); font-size: 13px; line-height: 1.6;
+  }
+  .canon b { color: #c7cfe2; }
+  .footer { margin-top: 34px; font-size: 13px; color: var(--muted); line-height: 1.6; }
+  .footer code { color: #c7cfe2; background: #0a0e1a; border: 1px solid var(--line); padding: 1px 6px; }
+</style>
+</head>
+<body>
+
+<h1>DIA: the direction hand</h1>
+<p class="sub">
+  Six fused challengers were dealt and weighed against the grounded list on two axes only:
+  <b>audience identification</b> (what a Mumbai electronics merchant and the judge know by heart) and
+  <b>product clarity</b> (does the form carry the agent loop truthfully). Verdicts below were fixed before any borrowing.
+  Lock one card on the question prompt.
+</p>
+
+<div class="lead-card">
+  <div class="kicker">Build candidate</div>
+  <h2><span class="chip win">Wins both axes</span> Midnight Enamel Network: DIA as the shop's rail diagram of money</h2>
+  <p class="case">
+    The merchant reads the Mumbai local map every morning; a route diagram is the one diagram a Mumbaikar parses without training.
+    DIA becomes that diagram: midnight-blue enamel ground, porcelain station ticks, and a small family of line inks.
+    Business truth is drawn, not chatted.
+  </p>
+  <div class="rows">
+    <div><b>World:</b> midnight enamel ground with thin porcelain rules; four line inks only: today plus three series (scarlet revenue, cobalt campaigns, amber live work, green settled). Type stays on one size system, fixed label sizes like signage plates.</div>
+    <div><b>First viewport:</b> Assistant-first: the conversation rail on the left ("the platform"), the money line drawn across the right with station ticks for each real metric; the agent's work draws itself onto the enamel, live.</div>
+    <div><b>Signature interaction:</b> the agent draws its route. Every executed tool extends the polyline with a new tick; evidence lights the tick; a waiting approval becomes an amber interchange circle at the line's end that pulses until picked. The merchant watches the diagram grow, not a spinner.</div>
+    <div><b>Visitor path:</b> speak on the platform, watch the line build, approve at the interchange, open Activity to ride the same diagram as history.</div>
+    <div><b>Cross-surface reach:</b> customers, campaigns, analytics and activity all render as corridors: segments are station clusters, campaign performance is a line's traffic, history is the line's archive.</div>
+    <div><b>Honest risk:</b> transit metaphor can decay into decorative track spaghetti. Guarded by discipline rules: 45 and 90 degree bends only, four inks, one chosen line burning brightest.</div>
+  </div>
+  <div class="raises">
+    <span><b>Raised by the declined counterfoil book:</b> approvals keep counterfoil semantics: a numbered entry with an APPROVED/VOID stamp state, so every side-effect shows its receipt number.</span>
+    <span><b>Raised by the declined catalogue grid:</b> data walls (recent transactions, customer clusters) pack whole-cells edge to edge; the active cell is circled, not colored.</span>
+    <span><b>Raised by the declined exposure record:</b> conflict never leans on color: a disputed or failed state is a struck rule through the tick; plus a stated tonal ramp so saturation stays honest (ink discipline).</span>
+    <span><b>Raised by the declined botanical folio:</b> period comparisons are plates at fixed scale: this weekend always drawn at the same height budget as last weekend.</span>
+    <span><b>Raised by the declined slide rack:</b> rank is carried by weight and case, never by size inflation: one size system across the whole surface.</span>
+  </div>
+</div>
+
+<div class="alternate-row three">
+  <div class="card">
+    <div class="kicker">Alternate</div>
+    <h2>Enamel Bazaar Fascia</h2>
+    <div><span class="chip comp">Holds audience axis</span></div>
+    <p class="case">
+      The route to the assignment list was here first: the bilingual hand-painted shop fascia, marigold and cobalt enamel over dark ground, lettering as identity.
+      Reads as "this is a shop's own board", strongest warmth of the hand, but the fascia is a static display, and static display is exactly the dashboard cliché the project banned.
+      Donated its bilingual signage plate tradition to the lead: labels carry both scripts.
+    </p>
+  </div>
+  <div class="card">
+    <div class="kicker">Alternate</div>
+    <h2>Carbon Counterfoil Book</h2>
+    <div><span class="chip comp">Holds audience axis</span></div>
+    <p class="case">
+      The dealt jet-age ticket wallet fused into the Indian carbon bill book: every shop counter has one, the purple carbon copy is the dark surface, and the stamp states (APPROVED, VOID) map perfectly onto the approval state machine.
+      Crisp for approvals, weaker as a full surface: time series have no natural home on carbon stock without costume.
+      Its counterfoil discipline rides in the lead as the raise above.
+    </p>
+  </div>
+  <div class="card">
+    <div class="kicker">Impeccable's pick</div>
+    <h2>Bahi-Khata Ledger</h2>
+    <div><span class="chip comp">Strong on paper, known in market</span></div>
+    <p class="case">
+      My own top-ranked grounded candidate: the red-cloth double-entry register DIA writes entries into. Merchants trust the khata more than any dashboard; the metaphor borrows real authority.
+      Honest risk: fintech has already done "digital khata" to death, Khatabook/OkCredit made this look mainstream, so judges may read it as a familiar category rather than a new teammate.
+      It stays adoptable if you want trust over novelty.
+    </p>
+  </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+  <div class="kicker">Demoted, compact</div>
+  <h2>Declined challengers and what the lead took from them</h2>
+  <p class="case">
+    Darkroom exposure record sheets: declined both axes, gave conflict-as-structure and the tonal ramp.
+    Doujin event catalogue: declined both axes, gave the packed whole-cell grid and pen-circle selection.
+    Botanical folio: declined both axes, gave fixed-scale comparison plates.
+    Slide-rack timetable: declined both axes, gave the one-size typography rule (weight and case carry rank, size never does).
+    Every declined verdict is visible in the lead's raise list above; nothing adopted silently.
+  </p>
+</div>
+
+<div class="canon">
+  <b>The standing exit (category standard, played straight).</b>
+  A quietly excellent modern operator console at Stripe-Dashboard craft: clean light or dark neutral surfaces, crisp tables, one accent.
+  It is your door, never my recommendation. Choosing it is legitimate; the build then matches the best SaaS dashboards without irony.
+</div>
+
+<div class="footer">
+  <p>Re-roll registers, say the word with the pick: <b>plain</b> (a fresh hand, same spread), <b>safer</b> (the conventional grounded list plus the category standard against named competitors), <b>bolder</b> (foreign forms only, full commitment).</p>
+  <p style="margin-top:8px;">Build path recorded: <code>code</code> (build directly from the locked direction; ambition lives in the written direction contract and is audited at the finish). The quality-bar board for the built world: <code>.impeccable/boards/transit-board.webp</code>.</p>
+</div>
+
+</body>
+</html>
