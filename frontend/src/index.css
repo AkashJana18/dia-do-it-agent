@@ -1,0 +1,26 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html, body, #root { height: 100%; }
+  body {
+    @apply bg-desk text-paper font-sans antialiased;
+  }
+  .num { font-variant-numeric: tabular-nums; }
+  * { @apply border-ink/10; }
+}
+
+@layer components {
+  .paper-panel {
+    @apply bg-paper text-ink rounded-sm shadow-[0_1px_0_rgba(0,0,0,0.4),0_8px_24px_rgba(0,0,0,0.35)];
+    background-image: repeating-linear-gradient(0deg, transparent 0, transparent 23px, rgba(26,22,18,0.06) 23px, rgba(26,22,18,0.06) 24px);
+  }
+
+  .stamp {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold tracking-widest uppercase border-2;
+  }
+  .stamp-approved { @apply border-green-700 text-green-700 bg-green-50; }
+  .stamp-pending { @apply border-amber-700 text-amber-700 bg-amber-50; }
+  .stamp-rejected { @apply border-red-700 text-red-700 bg-red-50; }
+}
