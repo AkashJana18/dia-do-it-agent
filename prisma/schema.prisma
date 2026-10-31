@@ -1,0 +1,254 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Merchant {
+  id          String   @id @default(cuid())
+  name        String
+  businessType String
+  city        String
+  currency    String   @default("INR")
+  phone       String?
+  paytmMerchantId String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  products    Product[]
+  customers   Customer[]
+  transactions Transaction[]
+  offers      Offer[]
+  segments    CustomerSegment[]
+  campaigns   Campaign[]
+  conversations Conversation[]
+  actions     AgentAction[]
+  approvals   Approval[]
+  auditLogs   AuditLog[]
+  toolRuns    ToolRun[]
+  preferences MerchantPreference?
+}
+
+model MerchantPreference {
+  id           String   @id @default(cuid())
+  merchantId   String   @unique
+  languageCode String   @default("en-IN")
+  ttsVoice     String   @default("shubh")
+  ttsModel     String   @default("bulbul:v3")
+  autoPlayTts  Boolean  @default(true)
+  theme        String   @default("dark")
+  updatedAt    DateTime @updatedAt
+  merchant     Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  merchantId  String
+  name        String
+  category    String
+  price       Int
+  costPrice   Int
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  transactions Transaction[]
+  @@index([merchantId])
+}
+
+model Customer {
+  id            String   @id @default(cuid())
+  merchantId    String
+  name          String
+  phone         String?
+  language      String   @default("hi-IN")
+  firstPurchaseAt DateTime?
+  lastPurchaseAt  DateTime?
+  totalSpend    Int      @default(0)
+  orderCount    Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+  merchant      Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  transactions  Transaction[]
+  campaignEvents CampaignEvent[]
+  @@index([merchantId])
+  @@index([merchantId, lastPurchaseAt])
+}
+
+model Transaction {
+  id          String   @id @default(cuid())
+  merchantId  String
+  customerId  String?
+  productId   String?
+  quantity    Int      @default(1)
+  amount      Int
+  status      String   @default("SUCCESS")
+  paymentMethod String @default("UPI")
+  createdAt   DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  product     Product?  @relation(fields: [productId], references: [id], onDelete: SetNull)
+  @@index([merchantId, createdAt])
+  @@index([merchantId, status])
+}
+
+model CustomerSegment {
+  id          String   @id @default(cuid())
+  merchantId  String
+  name        String
+  description String
+  criteria    Json
+  customerCount Int    @default(0)
+  createdAt   DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaigns   Campaign[]
+  @@index([merchantId])
+}
+
+model Offer {
+  id            String   @id @default(cuid())
+  merchantId    String
+  name          String
+  type          String
+  value         Int
+  minAmount     Int?
+  maxDiscount   Int?
+  validFrom     DateTime
+  validTo       DateTime
+  estimatedCost Int      @default(0)
+  marginOk      Boolean  @default(true)
+  status        String   @default("draft")
+  createdByActionId String?
+  createdAt     DateTime @default(now())
+  merchant      Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  campaigns     Campaign[]
+  @@index([merchantId])
+}
+
+model Campaign {
+  id            String   @id @default(cuid())
+  merchantId    String
+  name          String
+  offerId       String?
+  segmentId     String?
+  message       String
+  language      String   @default("hi-IN")
+  channel       String   @default("WHATSAPP")
+  status        String   @default("draft")
+  audienceCount Int      @default(0)
+  sentCount     Int      @default(0)
+  deliveredCount Int     @default(0)
+  openedCount   Int      @default(0)
+  redeemedCount Int      @default(0)
+  revenueAttributed Int  @default(0)
+  executionResult Json?
+  createdAt     DateTime @default(now())
+  executedAt    DateTime?
+  merchant      Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  offer         Offer?   @relation(fields: [offerId], references: [id], onDelete: SetNull)
+  segment       CustomerSegment? @relation(fields: [segmentId], references: [id], onDelete: SetNull)
+  events        CampaignEvent[]
+  @@index([merchantId])
+}
+
+model CampaignEvent {
+  id          String   @id @default(cuid())
+  campaignId  String
+  customerId  String?
+  type        String
+  payload     Json?
+  createdAt   DateTime @default(now())
+  campaign    Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  customer    Customer? @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  @@index([campaignId])
+  @@index([campaignId, type])
+}
+
+model Conversation {
+  id          String   @id @default(cuid())
+  merchantId  String
+  title       String   @default("New conversation")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  messages    Message[]
+  actions     AgentAction[]
+  toolRuns    ToolRun[]
+  @@index([merchantId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  conversationId String
+  role           String
+  content        Json
+  createdAt      DateTime @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  toolRuns       ToolRun[]
+}
+
+model AgentAction {
+  id             String   @id @default(cuid())
+  merchantId     String
+  conversationId String?
+  type           String
+  title          String
+  description    String
+  params         Json
+  risk           String   @default("write")
+  status         String   @default("pending_approval")
+  result         Json?
+  createdAt      DateTime @default(now())
+  decidedAt      DateTime?
+  merchant       Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  approval       Approval?
+  @@index([merchantId, status])
+  @@index([conversationId])
+}
+
+model Approval {
+  id          String   @id @default(cuid())
+  merchantId  String
+  actionId    String   @unique
+  summary     Json
+  status      String   @default("pending")
+  requestedAt DateTime @default(now())
+  decidedAt   DateTime?
+  decidedBy   String?
+  comment     String?
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  action      AgentAction @relation(fields: [actionId], references: [id], onDelete: Cascade)
+  @@index([merchantId, status])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  merchantId  String
+  actionId    String?
+  event       String
+  data        Json?
+  createdAt   DateTime @default(now())
+  merchant    Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  @@index([merchantId, createdAt])
+}
+
+model ToolRun {
+  id             String   @id @default(cuid())
+  merchantId     String
+  conversationId String?
+  messageId      String?
+  tool           String
+  args           Json
+  status         String   @default("running")
+  result         Json?
+  error          String?
+  startedAt      DateTime @default(now())
+  finishedAt     DateTime?
+  merchant       Merchant @relation(fields: [merchantId], references: [id], onDelete: Cascade)
+  conversation   Conversation? @relation(fields: [conversationId], references: [id], onDelete: SetNull)
+  message        Message? @relation(fields: [messageId], references: [id], onDelete: SetNull)
+  @@index([conversationId])
+}
