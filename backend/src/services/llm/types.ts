@@ -4,6 +4,9 @@ export interface LlmToolCall {
   id: string;
   name: string;
   arguments: string; // JSON string
+  // Gemini 3 requires the thought signature returned with a tool call to be
+  // echoed back on the next round, or the follow-up request is rejected.
+  extraContent?: Record<string, unknown>;
 }
 
 export interface LlmMessage {

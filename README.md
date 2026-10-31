@@ -45,6 +45,38 @@ cd frontend && npm run dev
 
 Open http://localhost:5173. The app auto-creates a demo session for Sharma Electronics.
 
+## Deploy
+
+The frontend and the API deploy separately. The frontend is static; the API needs
+a persistent disk because it keeps its SQLite database and records every approval.
+
+### Frontend on Vercel
+
+1. Import the repository in Vercel and set **Root Directory** to `frontend`.
+2. Framework preset is Vite. Build `npm run build`, output `dist`.
+3. Add the environment variable `VITE_API_URL=https://<your-api-host>`.
+4. `frontend/vercel.json` already handles the SPA rewrite, so `/history` and
+   `/settings` resolve on refresh.
+
+### API on Render
+
+1. Create a new **Blueprint** from this repository. `render.yaml` defines the
+   service, the build, the health check, and a 1GB disk at `/var/data`.
+2. The blueprint uses the Starter plan because persistent disks are not available
+   on the free plan. Free Render services also sleep and lose their local disk.
+3. Fill the secret variables when prompted: `SARVAM_API_KEY`, `LLM_API_KEY`, and
+   `FRONTEND_ORIGIN` set to your Vercel URL.
+4. On the first boot, `backend/start.sh` creates the schema and seeds the shop if
+   `/var/data/dev.db` is missing. Later boots keep the existing data.
+
+### Before sharing the URL
+
+- `/api/auth/demo` issues a session to anyone who opens the app. Put a password
+  gate in front of a public deployment, or keep it unlisted.
+- Rotate the Sarvam and Gemini keys if they have ever been pasted into a chat.
+- The free Gemini tier allows about 20 requests per day per model, and one
+  multi-tool question uses several. Use a billed key for a live demo.
+
 ## Environment variables
 
 See `.env.example`. All external integrations are optional; the app runs in demo mode
@@ -57,12 +89,27 @@ Set `LLM_PROVIDER` to one of: `gemini`, `groq`, `openrouter`, `openai`, `custom`
 Any provider with an empty `LLM_API_KEY` falls back to `mock`. All use the OpenAI
 chat-completions + tools wire format.
 
+The default Gemini model is `gemini-3.1-flash-lite`. Gemini 3 models spend several
+seconds "thinking" unless `LLM_REASONING_EFFORT=none` is set, and the demo needs
+the fast path. One multi-tool question makes several model calls, so a free-tier
+key (about 20 requests per day per model) runs out quickly during rehearsal. Use a
+billed key for a live demo.
+
+If the provider fails before any tool has run in a turn, the agent retries that
+turn on the deterministic local planner, so a quota error or an outage does not
+break the flow. Failures after a write has started return a short, localized
+message instead of an English error.
+
 ## Sarvam AI
 
 All Sarvam calls happen server-side through `backend/src/services/sarvam/*`.
 - STT: `POST /api/sarvam`-backed `/speech-to-text`, multipart, model `saaras:v4`.
 - TTS: `/text-to-speech`, JSON, model `bulbul:v3`, returns base64 WAV.
 - Translate: `/translate`, JSON, model `mayura:v1`.
+- Voice: `SARVAM_TTS_SPEAKER` defaults to `priya`, an Indian female Hindi voice.
+  It also reads Tamil, Telugu, Marathi and Bengali. Other valid `bulbul:v3`
+  speakers include `neha`, `ishita`, `pooja`, `shreya`, `kavya`, `ritu`,
+  `simran`, `roopa`, `tanya`, `shruti`, `suhani`, `kavitha`.
 
 ## Database
 

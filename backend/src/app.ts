@@ -3,7 +3,7 @@ import cors from "@fastify/cors";
 import cookie from "@fastify/cookie";
 import multipart from "@fastify/multipart";
 import rateLimit from "@fastify/rate-limit";
-import { config } from "./config.js";
+import { config, isAllowedOrigin } from "./config.js";
 import { authRoutes } from "./routes/auth.js";
 import { chatRoutes } from "./routes/chat.js";
 import { voiceRoutes } from "./routes/voice.js";
@@ -14,7 +14,7 @@ export async function buildApp() {
   const app = Fastify({ logger: { level: config.logLevel } });
 
   await app.register(cors, {
-    origin: config.frontendOrigin,
+    origin: (origin, cb) => cb(null, isAllowedOrigin(origin)),
     credentials: true,
   });
   await app.register(cookie, { secret: config.sessionSecret });

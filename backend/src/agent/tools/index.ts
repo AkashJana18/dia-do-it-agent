@@ -30,6 +30,20 @@ const tools: ToolDef[] = [];
 
 function register(t: ToolDef) { tools.push(t); }
 
+// Resolve the exact audience for a segment. The old code snapped every request
+// to a prebuilt 30/60/90 bucket, which made a "30 days" segment and its offer
+// disagree. Derive the list from the criteria instead.
+async function audienceForSegment(merchantId: string, segment: { criteria?: unknown } | null) {
+  const days = Number((segment?.criteria as any)?.inactiveDays);
+  if (!Number.isFinite(days)) {
+    const segs = await customers.buildSegments(merchantId);
+    return segs.find((s) => s.name.startsWith("Inactive"))!.customers;
+  }
+  const all = await paytm.listCustomers(merchantId);
+  const cutoff = Date.now() - days * 86400000;
+  return all.filter((c) => !c.lastPurchaseAt || c.lastPurchaseAt.getTime() < cutoff);
+}
+
 // ---------- 1. get_sales_metrics ----------
 register({
   name: "get_sales_metrics",
@@ -232,9 +246,11 @@ register({
     const validTo = new Date();
     validTo.setDate(validTo.getDate() + validityDays);
 
-    const segs = await customers.buildSegments(ctx.merchantId);
-    const inactive = segs.find((s) => s.name.startsWith("Inactive"))!;
-    const audience = inactive.customers;
+    const latestSegment = await prisma.customerSegment.findFirst({
+      where: { merchantId: ctx.merchantId },
+      orderBy: { createdAt: "desc" },
+    });
+    const audience = await audienceForSegment(ctx.merchantId, latestSegment);
     const avgSpend = audience.reduce((s, c) => s + c.totalSpend, 0) / Math.max(1, audience.length);
     const estRedeemed = Math.round(audience.length * 0.22);
     const estRevenue = Math.round(estRedeemed * Math.max(500, avgSpend * 0.4));
@@ -299,21 +315,18 @@ register({
     const description = args.description ?? "Customer segment created by DIA.";
     const criteria = args.criteria ?? {};
     const inactiveDays = (criteria as any).inactiveDays ?? 60;
-    const segs = await customers.buildSegments(ctx.merchantId);
-    // find matching built segment by inactiveDays
-    let matched = segs.find((s) => (s.criteria as any).inactiveDaysMin === inactiveDays || (s.criteria as any).inactiveDays === inactiveDays);
-    if (!matched) matched = segs.find((s) => s.name.startsWith("Inactive"))!;
-    const id = await customers.persistSegment(ctx.merchantId, name, description, criteria, matched.customers);
+    const matched = await audienceForSegment(ctx.merchantId, { criteria });
+    const id = await customers.persistSegment(ctx.merchantId, name, description, criteria, matched);
     const card = {
       type: "segment",
       title: name,
-      segment: { id, name, description, criteria, customerCount: matched.customers.length },
+      segment: { id, name, description, criteria, customerCount: matched.length },
     };
     return {
       ok: true,
-      data: { segmentId: id, name, description, criteria, customerCount: matched.customers.length },
+      data: { segmentId: id, name, description, criteria, customerCount: matched.length },
       card,
-      summary: `Created segment "${name}" with ${matched.customers.length} customers.`,
+      summary: `Created segment "${name}" with ${matched.length} customers (no purchase in the last ${inactiveDays} days).`,
     };
   },
 });
@@ -354,28 +367,56 @@ register({
       offer = await prisma.offer.findFirst({ where: { merchantId: ctx.merchantId, status: "draft" }, orderBy: { createdAt: "desc" } });
     }
 
-    const segs = await customers.buildSegments(ctx.merchantId);
-    const matched = segs.find((s) => s.name === segment?.name) ?? segs.find((s) => s.name.startsWith("Inactive"))!;
-    const audience = matched.customers;
+    const audience = await audienceForSegment(ctx.merchantId, segment);
 
-    // base message in English, then translate via sarvam (or mock)
+    // Write the customer-facing message in the merchant's language first, so a
+    // translated sentence never lands half-English in a customer's inbox.
+    const merchant = await prisma.merchant.findUnique({ where: { id: ctx.merchantId } });
+    const shopName = merchant?.name ?? "our shop";
     const validityDays = offer ? Math.round((offer.validTo.getTime() - offer.validFrom.getTime()) / 86400000) : 14;
-    const baseMessage = `Come back to Sharma Electronics! Enjoy ${offer?.type === "PERCENT" ? offer.value + "% off" : "Rs. " + offer?.value + " off"} on your next purchase. Valid ${validityDays} days. Show this message at the store.`;
-    // translate
-    let finalMessage = baseMessage;
-    try {
-      const { translateText } = await import("../../services/sarvam/translate.js");
-      if (language !== "en-IN") {
+    const saving = offer?.type === "PERCENT" ? `${offer.value}%` : `Rs. ${offer?.value}`;
+    const baseMessage = `Come back to ${shopName}! Get ${saving} off your next purchase. Valid for ${validityDays} days. Show this message at the store.`;
+    const localMessages: Record<string, string> = {
+      "hi-IN": `${shopName} में आपका फिर से स्वागत है! अगली खरीद पर ${saving} की छूट. ${validityDays} दिन तक मान्य. दुकान पर यह मैसेज दिखाइए.`,
+      "mr-IN": `${shopName} मध्ये पुन्हा स्वागत आहे! पुढील खरेदीवर ${saving} सूट. ${validityDays} दिवसांसाठी वैध. दुकानात हा संदेश दाखवा.`,
+      "en-IN": baseMessage,
+    };
+    let finalMessage = localMessages[language] ?? baseMessage;
+    if (!localMessages[language]) {
+      try {
+        const { translateText } = await import("../../services/sarvam/translate.js");
         finalMessage = await translateText(baseMessage, "en-IN", language);
+      } catch {
+        finalMessage = baseMessage;
       }
-    } catch {
-      finalMessage = baseMessage;
     }
+
+    const campaignName =
+      language.startsWith("hi") ? "वापसी का मैसेज" : language.startsWith("mr") ? "परत बोलवण्याचा संदेश" : "Comeback message";
+    const actionTitle =
+      language.startsWith("hi")
+        ? `${audience.length} ग्राहकों को मैसेज भेजें`
+        : language.startsWith("mr")
+        ? `${audience.length} ग्राहकांना संदेश पाठवा`
+        : `Send a message to ${audience.length} customers`;
+    const plainWhat =
+      language.startsWith("hi")
+        ? `${audience.length} ग्राहकों को WhatsApp पर मैसेज`
+        : language.startsWith("mr")
+        ? `${audience.length} ग्राहकांना WhatsApp वर संदेश`
+        : `A WhatsApp message to ${audience.length} customers`;
+    const inactiveDays = Number((segment?.criteria as any)?.inactiveDays ?? 60);
+    const plainWhy =
+      language.startsWith("hi")
+        ? `ये ग्राहक ${inactiveDays} दिन से नहीं आए, इसलिए उन्हें वापस बुलाने का मैसेज.`
+        : language.startsWith("mr")
+        ? `हे ग्राहक ${inactiveDays} दिवसांपासून आले नाहीत, म्हणून त्यांना परत बोलवण्याचा संदेश.`
+        : `These customers have not visited in ${inactiveDays} days, so this message brings them back.`;
 
     const campaign = await prisma.campaign.create({
       data: {
         merchantId: ctx.merchantId,
-        name: `Comeback campaign (${language})`,
+        name: campaignName,
         offerId: offer?.id ?? null,
         segmentId: segment?.id ?? null,
         message: finalMessage,
@@ -392,8 +433,8 @@ register({
         merchantId: ctx.merchantId,
         conversationId: ctx.conversationId ?? null,
         type: "EXECUTE_CAMPAIGN",
-        title: `Send comeback campaign to ${audience.length} customers`,
-        description: `DIA wants to send a ${offer?.type === "PERCENT" ? offer.value + "% off" : "discount"} campaign in ${language} to ${audience.length} inactive customers via ${channel}.`,
+        title: actionTitle,
+        description: `${plainWhat} (${language}, ${channel}).`,
         params: { campaignId: campaign.id, offerId: offer?.id, segmentId: segment?.id, language, channel },
         risk: "write",
         status: "pending_approval",
@@ -404,13 +445,14 @@ register({
         merchantId: ctx.merchantId,
         actionId: action.id,
         summary: {
-          what: `Send a ${channel} campaign to ${audience.length} customers`,
-          why: "Weekend sales declined and these customers have not purchased in 60+ days.",
+          what: plainWhat,
+          why: plainWhy,
           audience: audience.length,
           offer: offer ? `${offer.type} ${offer.value}` : "none",
           message: finalMessage,
           language,
           estimatedCost: offer?.estimatedCost ?? 0,
+          marginOk: offer?.marginOk ?? true,
         },
         status: "pending",
       },
@@ -421,11 +463,12 @@ register({
       actionId: action.id,
       approvalId: approval.id,
       title: action.title,
-      what: `Send a ${channel} campaign to ${audience.length} customers`,
-      why: "Weekend sales declined and these customers have not purchased in 60+ days.",
+      what: plainWhat,
+      why: plainWhy,
       audience: audience.length,
       offer: offer ? `${offer.type} ${offer.value}` : "none",
       estimatedCost: offer?.estimatedCost ?? 0,
+      marginOk: offer?.marginOk ?? true,
       message: finalMessage,
       language,
     };
@@ -446,7 +489,7 @@ register({
       data: { campaignId: campaign.id, actionId: action.id, approvalId: approval.id, audience: audience.length, message: finalMessage, language },
       card: previewCard,
       pendingAction: { id: action.id, type: "EXECUTE_CAMPAIGN", title: action.title, summary: card },
-      summary: `Generated campaign for ${audience.length} customers in ${language}; awaiting approval (action ${action.id}).`,
+      summary: `Prepared a message for ${audience.length} customers; waiting for your yes.`,
     };
   },
 });

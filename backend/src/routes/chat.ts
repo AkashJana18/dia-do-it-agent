@@ -2,6 +2,7 @@ import type { FastifyInstance } from "fastify";
 import { prisma } from "../database/prisma.js";
 import { requireMerchant } from "../middleware/auth.js";
 import { runAgent } from "../agent/agent.js";
+import { config, isAllowedOrigin } from "../config.js";
 
 export async function chatRoutes(app: FastifyInstance) {
   app.get("/api/conversations", async (request, reply) => {
@@ -53,7 +54,13 @@ export async function chatRoutes(app: FastifyInstance) {
     const prefs = await prisma.merchantPreference.findUnique({ where: { merchantId: mid } });
     const language = body.language ?? prefs?.languageCode ?? "hi-IN";
 
-    // SSE setup
+    // SSE setup. The raw response bypasses Fastify's onSend CORS hook, so the
+    // browser headers have to be written here or the stream is blocked.
+    const origin = request.headers.origin;
+    if (!isAllowedOrigin(origin)) return reply.code(403).send({ error: "origin not allowed" });
+    reply.raw.setHeader("Access-Control-Allow-Origin", origin ?? config.frontendOrigin);
+    reply.raw.setHeader("Access-Control-Allow-Credentials", "true");
+    reply.raw.setHeader("Vary", "Origin");
     reply.raw.setHeader("Content-Type", "text/event-stream");
     reply.raw.setHeader("Cache-Control", "no-cache");
     reply.raw.setHeader("Connection", "keep-alive");

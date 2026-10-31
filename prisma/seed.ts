@@ -112,7 +112,7 @@ async function main() {
     data: {
       merchantId: merchant.id,
       languageCode: "hi-IN",
-      ttsVoice: "shubh",
+      ttsVoice: "priya",
       theme: "dark",
       autoPlayTts: true,
     },

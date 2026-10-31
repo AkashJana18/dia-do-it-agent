@@ -127,7 +127,7 @@ export async function dataRoutes(app: FastifyInstance) {
       create: {
         merchantId: mid,
         languageCode: body.languageCode ?? "hi-IN",
-        ttsVoice: body.ttsVoice ?? "shubh",
+        ttsVoice: body.ttsVoice ?? "priya",
         ttsModel: body.ttsModel ?? "bulbul:v3",
         autoPlayTts: body.autoPlayTts ?? true,
         theme: body.theme ?? "dark",

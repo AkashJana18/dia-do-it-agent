@@ -45,11 +45,15 @@ export function buildPlan(text: string): string[] {
   const t = text.toLowerCase();
   const plan: string[] = [];
   const has = (re: RegExp) => re.test(t);
-  const wantsReport = has(/report|aaj ka|today'?s business|daily|business report/);
-  const wantsDecline = has(/drop|decline|kam ho|kya problem|why.*sale|sales.*down|gir[a-z]*|yesterday/);
-  const wantsWinback = has(/inactive|bring back|wapas|win.?back|lane ke liye|recover|laut/);
-  const wantsOffer = has(/offer|discount|margin/);
-  const wantsCampPerf = has(/campaign.*(perform|result|how)|performance.*campaign/);
+  const wantsReport = has(/report|aaj ka|today'?s business|daily|business report|रिपोर्ट|आज का हिसाब|आज की बिक्री/);
+  const wantsDecline = has(
+    /drop|decline|kam ho|kya problem|why.*sale|sales.*down|gir[a-z]*|yesterday|कम हो|क्यों.*बिक्री|बिक्री.*क्यों|कम हुई|गिर/
+  );
+  const wantsWinback = has(
+    /inactive|bring back|wapas|win.?back|lane ke liye|recover|laut|वापस|रुके|नहीं आए|आना बंद/
+  );
+  const wantsOffer = has(/offer|discount|margin|ऑफर|छूट|डिस्काउंट/);
+  const wantsCampPerf = has(/campaign.*(perform|result|how)|performance.*campaign|मैसेज.*नतीज|नतीजे/);
 
   if (wantsReport) {
     plan.push("get_sales_metrics", "get_customer_segments", "analyze_sales_performance");
@@ -97,17 +101,17 @@ function buildArgs(toolName: string, userText: string, messages: LlmMessage[], r
     case "get_sales_metrics": {
       let period = "today";
       if (/yesterday|yest/.test(t)) period = "yesterday";
-      else if (/weekend|week/.test(t)) period = "week";
-      else if (/month/.test(t)) period = "month";
-      else if (/decline|drop|kam/.test(t)) period = "yesterday";
+      else if (/weekend|week|वीकेंड|सप्ताहांत|हफ़्ते/.test(t)) period = "week";
+      else if (/month|महीन|महीने/.test(t)) period = "month";
+      else if (/decline|drop|kam|कम|गिर/.test(t)) period = "yesterday";
       return { period, compare: true };
     }
     case "analyze_sales_performance": {
       let focus = "today";
       if (/yesterday/.test(t)) focus = "yesterday";
-      else if (/weekend/.test(t)) focus = "weekend";
-      else if (/week/.test(t)) focus = "week";
-      else if (/decline|drop|kam/.test(t)) focus = "yesterday";
+      else if (/weekend|वीकेंड|सप्ताहांत/.test(t)) focus = "weekend";
+      else if (/week|हफ़्ते/.test(t)) focus = "week";
+      else if (/decline|drop|kam|कम|गिर/.test(t)) focus = "yesterday";
       return { focus, includeHypotheses: true };
     }
     case "create_customer_segment":
@@ -146,14 +150,26 @@ function fmt(n: number): string {
   return "Rs. " + n.toLocaleString("en-IN");
 }
 
-function composeReply(userText: string, results: Array<{ name: string; data: any }>): string {
-  const lang = detectLang(userText);
+function preferredLanguage(messages: LlmMessage[]): string {
+  const system = messages.find((m) => m.role === "system");
+  const content = typeof system?.content === "string" ? system.content : "";
+  const match = content.match(/preferred language:\s*([a-z]{2}-[A-Z]{2})/);
+  return match?.[1] ?? "hi-IN";
+}
+
+function composeReply(
+  userText: string,
+  results: Array<{ name: string; data: any }>,
+  lang: string
+): string {
+  const hi = lang.startsWith("hi");
+  const mr = lang.startsWith("mr");
   const t = userText.toLowerCase();
-  const wantsReport = /report|aaj ka|today'?s business|daily|business report/.test(t);
-  const wantsDecline = /drop|decline|kam ho|kya problem|why.*sale|sales.*down|gir/.test(t);
-  const wantsWinback = /inactive|bring back|wapas|win.?back|lane ke liye|recover|laut/.test(t);
-  const wantsOffer = /offer|discount|margin/.test(t) && !wantsWinback;
-  const wantsCampPerf = /campaign.*(perform|result|how)|performance.*campaign/.test(t);
+  const wantsReport = /report|aaj ka|today'?s business|daily|business report|रिपोर्ट|आज का हिसाब|आज की बिक्री/.test(t);
+  const wantsDecline = /drop|decline|kam ho|kya problem|why.*sale|sales.*down|gir|कम हो|क्यों.*बिक्री|बिक्री.*क्यों|कम हुई|गिर/.test(t);
+  const wantsWinback = /inactive|bring back|wapas|win.?back|lane ke liye|recover|laut|वापस|रुके|नहीं आए|आना बंद/.test(t);
+  const wantsOffer = /offer|discount|margin|ऑफर|छूट|डिस्काउंट/.test(t) && !wantsWinback;
+  const wantsCampPerf = /campaign.*(perform|result|how)|performance.*campaign|मैसेज.*नतीज|नतीजे/.test(t);
 
   const sm = findResult(results, "get_sales_metrics");
   const segs = findResult(results, "get_customer_segments");
@@ -165,16 +181,18 @@ function composeReply(userText: string, results: Array<{ name: string; data: any
 
   if (wantsReport) {
     const today = sm?.today ?? sm?.data?.today;
-    const yest = sm?.yesterday ?? sm?.data?.yesterday;
     const rev = today?.revenue ?? 0;
-    const orders = today?.orders ?? 0;
+    const orders = today?.successfulOrders ?? today?.orders ?? 0;
     const avg = today?.avgTicket ?? 0;
     const delta = sm?.revenueDeltaPct ?? sm?.data?.revenueDeltaPct ?? 0;
     const active = segs?.active ?? segs?.data?.active ?? 0;
-    const dormant = segs?.dormant ?? segs?.data?.dormant ?? 0;
-    const text = `Aaj ka report: revenue ${fmt(rev)} across ${orders} orders, average ticket ${fmt(avg)}. Compared to yesterday that is ${delta >= 0 ? "+" : ""}${delta}%. Active customers ${active}, dormant ${dormant}. ${an?.headline ?? an?.data?.headline ?? "Sales are steady."} Next best action: focus on the inactive 60-day cohort with a comeback offer.`;
-    if (lang === "mr-IN") return `आजचा अहवाल: ${fmt(rev)} महसूल, ${orders} ऑर्डर, सरासरी टिकीट ${fmt(avg)}. कालच्या तुलनेत ${delta >= 0 ? "+" : ""}${delta}%. सक्रिय ग्राहक ${active}, निष्क्रिय ${dormant}. पुढील सर्वोत्तम कृती: 60 दिवसांपासून निष्क्रिय ग्राहकांसाठी परत येण्याची ऑफर.`;
-    return text;
+    if (hi) {
+      return `आज का हिसाब: ${fmt(rev)}, ${orders} ऑर्डर, औसत बिल ${fmt(avg)}. कल से ${delta >= 0 ? "+" : ""}${delta}%. ${active} ग्राहक सक्रिय हैं. सबसे अच्छा अगला कदम: जो ग्राहक आना बंद कर दिए, उन्हें वापस बुलाना.`;
+    }
+    if (mr) {
+      return `आजचा हिशोब: ${fmt(rev)}, ${orders} ऑर्डर, सरासरी बिल ${fmt(avg)}. कालच्या तुलनेत ${delta >= 0 ? "+" : ""}${delta}%. ${active} ग्राहक सक्रिय आहेत. पुढचे पाऊल: येणे बंद केलेल्या ग्राहकांना परत बोलवणे.`;
+    }
+    return `Today: ${fmt(rev)} from ${orders} orders, average bill ${fmt(avg)}. That is ${delta >= 0 ? "+" : ""}${delta}% from yesterday. The best next step is to bring back customers who have stopped buying.`;
   }
 
   if (wantsDecline) {
@@ -184,41 +202,59 @@ function composeReply(userText: string, results: Array<{ name: string; data: any
     const delta = wk?.revenueDeltaPct ?? (prevRev ? Math.round(((lastRev - prevRev) / prevRev) * 1000) / 10 : 0);
     const avgDelta = wk?.avgTicketDeltaPct ?? 0;
     const ordersDelta = wk?.ordersDeltaPct ?? 0;
-    const text = `Last weekend sales were ${fmt(lastRev)} versus ${fmt(prevRev)} the weekend before, a change of ${delta >= 0 ? "+" : ""}${delta}%. Order count changed ${ordersDelta >= 0 ? "+" : ""}${ordersDelta}% and average ticket ${avgDelta >= 0 ? "+" : ""}${avgDelta}%. The pattern points to fewer high-ticket purchases rather than fewer visitors. I recommend a comeback offer to customers inactive for 60+ days, which I have prepared below for your approval.`;
-    if (lang === "mr-IN") return `गेल्या आठवड्याच्या शेवटी विक्री ${fmt(lastRev)} होती, मागील आठवड्याच्या शेवटी ${fmt(prevRev)} होती, बदल ${delta >= 0 ? "+" : ""}${delta}%. ऑर्डर संख्या ${ordersDelta >= 0 ? "+" : ""}${ordersDelta}% आणि सरासरी टिकीट ${avgDelta >= 0 ? "+" : ""}${avgDelta}% बदलले. नमुना दर्शवतो की अधिक मौल्यवान खरेदी कमी झाल्या. मी 60+ दिवस निष्क्रिय ग्राहकांसाठी परत येण्याची ऑफर तयार केली आहे, तुमच्या मंजुरीसाठी खाली दिली आहे.`;
-    return text;
+    if (hi) {
+      return `पिछले वीकेंड ${fmt(lastRev)} की बिक्री हुई, उससे पहले ${fmt(prevRev)}, यानी ${delta >= 0 ? "+" : ""}${delta}%. ऑर्डर ${ordersDelta >= 0 ? "+" : ""}${ordersDelta}% और औसत बिल ${avgDelta >= 0 ? "+" : ""}${avgDelta}% बदला. मतलब ग्राहक कम नहीं हुए, बड़ी खरीद कम हुई. मैंने 60 दिन से न आए ग्राहकों के लिए वापस बुलाने का मैसेज नीचे तैयार किया है.`;
+    }
+    if (mr) {
+      return `गेल्या वीकेंडला ${fmt(lastRev)} ची विक्री झाली, त्याआधी ${fmt(prevRev)}, म्हणजे ${delta >= 0 ? "+" : ""}${delta}%. ऑर्डर ${ordersDelta >= 0 ? "+" : ""}${ordersDelta}% आणि सरासरी बिल ${avgDelta >= 0 ? "+" : ""}${avgDelta}% बदलले. म्हणजे ग्राहक कमी झाले नाहीत, मोठ्या खरेदी कमी झाल्या. 60 दिवसांपासून न आलेल्या ग्राहकांसाठी परत बोलवण्याचा संदेश खाली तयार आहे.`;
+    }
+    return `Last weekend made ${fmt(lastRev)}, the weekend before ${fmt(prevRev)}. That is ${delta >= 0 ? "+" : ""}${delta}%. Orders changed ${ordersDelta >= 0 ? "+" : ""}${ordersDelta}% and the average bill ${avgDelta >= 0 ? "+" : ""}${avgDelta}%. That means fewer big purchases, not fewer visitors. I have prepared a message for customers who have not bought in 60 days.`;
   }
 
   if (wantsWinback) {
     const n = seg?.customerCount ?? seg?.data?.customerCount ?? 0;
     const aud = camp?.audienceCount ?? camp?.data?.audienceCount ?? n;
-    const text = `I have prepared a comeback campaign: 8% off for ${aud} customers who have not bought in the last 60 days. The offer, audience and message are in the preview below. Please review and approve to send.`;
-    if (lang === "mr-IN") return `मी परत येण्याची मोहीम तयार केली आहे: गेल्या 60 दिवसांत खरेदी न केलेल्या ${aud} ग्राहकांसाठी 8% सूट. ऑफर, प्रेक्षक आणि संदेश खालील पूर्वावलोकनात आहेत. पाठवण्यासाठी कृपया तपासा आणि मंजूर करा.`;
-    return text;
+    if (hi) {
+      return `मैंने वापस बुलाने का मैसेज तैयार किया है: 60 दिन से न खरीदने वाले ${aud} ग्राहकों को 8% छूट. नीचे देख लीजिए. हाँ कहिए तो भेज दूँ.`;
+    }
+    if (mr) {
+      return `परत बोलवण्याचा संदेश तयार आहे: 60 दिवसांपासून न खरेदी करणाऱ्या ${aud} ग्राहकांना 8% सूट. खाली बघा. हो म्हणाल तर पाठवतो.`;
+    }
+    return `I have written a comeback message: 8% off for ${aud} customers who have not bought in 60 days. Check it below, and say yes if you want me to send it.`;
   }
 
   if (wantsOffer) {
     const est = off?.estimatedCost ?? off?.data?.estimatedCost ?? 0;
     const margin = off?.marginOk ?? off?.data?.marginOk ?? true;
-    const text = `Suggested an 8% comeback offer valid 14 days, minimum bill Rs. 2,000. Estimated discount cost ${fmt(est)}. Margin check: ${margin ? "healthy, stays above the floor" : "tight, review before publishing"}. Approve to publish.`;
-    return text;
+    if (hi) {
+      return `8% छूट का ऑफर, 14 दिन तक, कम से कम ₹2,000 का बिल. अंदाज़न ₹${est.toLocaleString("en-IN")} का खर्च आएगा. ${margin ? "मुनाफ़ा ठीक रहेगा." : "मुनाफ़ा कम रहेगा, भेजने से पहले सोच लीजिए."}`;
+    }
+    if (mr) {
+      return `8% सूटीची ऑफर, 14 दिवस, किमान ₹2,000 चे बिल. अंदाजे ₹${est.toLocaleString("en-IN")} खर्च येईल. ${margin ? "नफा ठीक राहील." : "नफा कमी राहील, पाठवण्यापूर्वी विचार करा."}`;
+    }
+    return `An 8% off offer for 14 days, minimum bill ₹2,000. It will cost about ₹${est.toLocaleString("en-IN")}. ${margin ? "Profit stays safe." : "Profit is tight, so think before sending."}`;
   }
 
   if (wantsCampPerf) {
-    const name = cperf?.name ?? cperf?.data?.name ?? "latest campaign";
+    const name = cperf?.name ?? cperf?.data?.name ?? "";
     const sent = cperf?.sent ?? cperf?.data?.sent ?? 0;
-    const del = cperf?.delivered ?? cperf?.data?.delivered ?? 0;
-    const op = cperf?.opened ?? cperf?.data?.opened ?? 0;
     const red = cperf?.redeemed ?? cperf?.data?.redeemed ?? 0;
     const rev = cperf?.revenue ?? cperf?.data?.revenue ?? 0;
-    return `${name}: sent ${sent}, delivered ${del}, opened ${op}, redeemed ${red}, revenue ${fmt(rev)}.`;
+    if (hi) return `मैसेज का नतीजा: ${sent} को भेजा, ${red} ने इस्तेमाल किया, कमाई ${fmt(rev)}.`;
+    if (mr) return `संदेशाचा निकाल: ${sent} जणांना पाठवला, ${red} जणांनी वापरला, कमाई ${fmt(rev)}.`;
+    return `Message results: ${sent} sent, ${red} used, ${fmt(rev)} in sales.`;
   }
 
-  // default overview
   const rev = sm?.today?.revenue ?? sm?.data?.today?.revenue ?? 0;
-  const orders = sm?.today?.orders ?? sm?.data?.today?.orders ?? 0;
+  const orders = sm?.today?.successfulOrders ?? sm?.data?.today?.successfulOrders ?? sm?.today?.orders ?? sm?.data?.today?.orders ?? 0;
   const active = segs?.active ?? segs?.data?.active ?? 0;
-  return `Today so far: ${fmt(rev)} across ${orders} orders. ${active} active customers. Ask me to investigate a drop, build an offer, or prepare a campaign.`;
+  if (hi) {
+    return `आज अब तक ${fmt(rev)}, ${orders} ऑर्डर. ${active} ग्राहक सक्रिय हैं. बिक्री के बारे में कुछ पूछिए, या कहिए तो ऑफर बना दूँ.`;
+  }
+  if (mr) {
+    return `आजपर्यंत ${fmt(rev)}, ${orders} ऑर्डर. ${active} ग्राहक सक्रिय आहेत. विक्रीबद्दल काही विचारा, किंवा सांगा तर ऑफर बनवतो.`;
+  }
+  return `Today so far: ${fmt(rev)} from ${orders} orders. ${active} customers are active. Ask me about sales, or say the word and I'll build an offer.`;
 }
 
 export class MockLlmProvider implements LlmProvider {
@@ -240,7 +276,7 @@ export class MockLlmProvider implements LlmProvider {
       };
     }
     const results = toolResultsAfterLastUser(messages);
-    const reply = composeReply(text, results);
+    const reply = composeReply(text, results, preferredLanguage(messages));
     return { message: { role: "assistant", content: reply }, finishReason: "stop" };
   }
 }

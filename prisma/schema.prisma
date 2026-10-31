@@ -36,7 +36,7 @@ model MerchantPreference {
   id           String   @id @default(cuid())
   merchantId   String   @unique
   languageCode String   @default("en-IN")
-  ttsVoice     String   @default("shubh")
+  ttsVoice     String   @default("priya")
   ttsModel     String   @default("bulbul:v3")
   autoPlayTts  Boolean  @default(true)
   theme        String   @default("dark")

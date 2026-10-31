@@ -12,7 +12,15 @@ Greenfield build with the stack pinned by the original brief: React + TypeScript
 
 ## Users
 
-Primary audience for this build: hackathon judges (Paytm Build for India Hackathon, Track 3: Autonomous AI Teammates) evaluating a five-minute demo. The end user embodied in the demo: a small-business owner (the fictional Sharma Electronics merchant in Mumbai) who speaks naturally in Hindi, English, Hinglish or other Indian languages and is not comfortable with dense payment dashboards. Single demo merchant; the schema and API are merchant-scoped even though the UI has no multi-merchant switcher.
+Primary audience: small-shop owners such as the fictional Sharma Electronics
+merchant in Mumbai, who speaks natural Hindi, English, Hinglish or another
+Indian language and is not comfortable with dense payment dashboards, filters,
+charts, or AI vocabulary. They may have limited literacy in English and will use
+the app one-handed on a phone behind a counter. The demo is shown to hackathon
+judges, but the judges are watching a merchant's experience, not a dashboard.
+
+Single merchant per deployment; the schema and API are merchant-scoped even
+though the UI has no merchant switcher.
 
 ## Product Purpose
 
@@ -42,12 +50,13 @@ The seed dataset is authored (documented in the repo): 90 days of transactions, 
 
 ## Product Principles
 
-1. Show real work: agent progress comes from actual tool executions and DB queries, never staged animations.
+1. Show real work: agent progress comes from actual tool executions and DB queries, never staged animations. Explain that work in the merchant's words ("I checked your sales"), never in tool or API names.
 2. Ground truth over generation: every number on screen is a number from the database or a tool result.
 3. Human in the loop for impact: read actions flow, write actions wait for approval.
 4. Voice as the front door: voice is the primary interaction path; text is the fallback, both share one agent loop.
-5. Demo-proof resilience: every external dependency has a mock path so the five-minute demo cannot break on venue Wi-Fi.
+5. Simple enough to use without instruction: three screens, one primary action per screen, no dashboards, no charts, no AI vocabulary. If a merchant has to learn the interface, the interface is wrong.
+6. Demo-proof resilience: every external dependency has a mock path so the five-minute demo cannot break on venue Wi-Fi.
 
 ## Accessibility & Inclusion
 
-No formal WCAG level is pinned, but inclusion is the product thesis: voice-first interaction for merchants who prefer speaking over reading dashboards; responses in the merchant's chosen language; clear spoken summaries instead of long technical text read aloud; the UI stays readable at 1280px projector widths and on mobile.
+No formal WCAG level is pinned, but inclusion is the product thesis: voice-first interaction for merchants who prefer speaking over reading dashboards; responses in the merchant's chosen language; clear spoken summaries instead of long technical text read aloud; the UI stays readable at 1280px projector widths and on mobile. Body text never drops below 16px, and the primary answer is 19px, because the merchant may read it in a bright shop or on a projector from across a room.

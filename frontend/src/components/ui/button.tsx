@@ -2,18 +2,41 @@ import * as React from "react";
 import { cn } from "../../lib/utils";
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "ghost";
+  variant?: "primary" | "attention" | "secondary" | "ghost" | "quiet";
   size?: "sm" | "md" | "lg";
 }
+
+const VARIANTS: Record<NonNullable<ButtonProps["variant"]>, string> = {
+  primary:
+    "bg-brand text-panel shadow-[0_1px_0_rgba(0,0,0,0.12)] hover:bg-brand-deep active:translate-y-[1px]",
+  attention:
+    "bg-warn text-panel shadow-[0_1px_0_rgba(0,0,0,0.12)] hover:opacity-90 active:translate-y-[1px]",
+  secondary:
+    "border border-linehot bg-panel text-ink hover:border-ink/40 hover:bg-panel2",
+  ghost: "text-soft hover:bg-panel2 hover:text-ink",
+  quiet: "text-dim hover:text-ink",
+};
+
+const SIZES: Record<NonNullable<ButtonProps["size"]>, string> = {
+  sm: "h-9 px-3 text-[14px]",
+  md: "h-11 px-4 text-[15px]",
+  lg: "h-12 px-6 text-[16px]",
+};
+
 export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-  ({ className, variant = "primary", size = "md", ...props }, ref) => {
-    const v = {
-      primary: "bg-neon text-base hover:bg-neon/90 shadow-[0_0_16px_rgba(34,211,238,0.25)]",
-      secondary: "bg-surface-2 text-ink border border-line hover:border-line-bright",
-      ghost: "text-ink-soft hover:text-ink hover:bg-surface-2",
-    }[variant];
-    const s = { sm: "h-8 px-3 text-xs", md: "h-10 px-4 text-sm", lg: "h-12 px-6 text-base" }[size];
-    return <button ref={ref} className={cn("inline-flex items-center justify-center gap-2 rounded-md font-medium transition focus:outline-none focus:ring-2 focus:ring-neon/40 disabled:opacity-50 disabled:pointer-events-none", v, s, className)} {...props} />;
-  }
+  ({ className, variant = "primary", size = "md", ...props }, ref) => (
+    <button
+      ref={ref}
+      className={cn(
+        "inline-flex shrink-0 items-center justify-center gap-2 rounded-md font-bold transition-colors",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand focus-visible:ring-offset-2 focus-visible:ring-offset-base",
+        "disabled:pointer-events-none disabled:opacity-40",
+        VARIANTS[variant],
+        SIZES[size],
+        className
+      )}
+      {...props}
+    />
+  )
 );
 Button.displayName = "Button";

@@ -6,6 +6,7 @@ interface OpenAICompatConfig {
   apiKey: string;
   model: string;
   extraHeaders?: Record<string, string>;
+  reasoningEffort?: string;
 }
 
 export class OpenAICompatProvider implements LlmProvider {
@@ -25,11 +26,15 @@ export class OpenAICompatProvider implements LlmProvider {
       messages: messages.map((m) => {
         const out: Record<string, unknown> = { role: m.role };
         if (m.content !== undefined) out.content = m.content;
-        if (m.tool_calls) out.tool_calls = m.tool_calls.map((tc) => ({
-          id: tc.id,
-          type: "function",
-          function: { name: tc.name, arguments: tc.arguments },
-        }));
+        if (m.tool_calls) out.tool_calls = m.tool_calls.map((tc) => {
+          const call: Record<string, unknown> = {
+            id: tc.id,
+            type: "function",
+            function: { name: tc.name, arguments: tc.arguments },
+          };
+          if (tc.extraContent) call.extra_content = tc.extraContent;
+          return call;
+        });
         if (m.tool_call_id) out.tool_call_id = m.tool_call_id;
         if (m.name) out.name = m.name;
         return out;
@@ -39,6 +44,7 @@ export class OpenAICompatProvider implements LlmProvider {
     };
     if (tools.length) body.tools = tools;
     body.tool_choice = tools.length ? "auto" : undefined;
+    if (this.cfg.reasoningEffort) body.reasoning_effort = this.cfg.reasoningEffort;
 
     const res = await fetch(url, {
       method: "POST",
@@ -55,7 +61,18 @@ export class OpenAICompatProvider implements LlmProvider {
       throw new Error(`LLM ${res.status}: ${text.slice(0, 500)}`);
     }
     const data = (await res.json()) as {
-      choices: Array<{ message: { role: string; content?: string | null; tool_calls?: Array<{ id: string; function: { name: string; arguments: string } }> }; finish_reason: string }>;
+      choices: Array<{
+        message: {
+          role: string;
+          content?: string | null;
+          tool_calls?: Array<{
+            id: string;
+            function: { name: string; arguments: string };
+            extra_content?: Record<string, unknown>;
+          }>;
+        };
+        finish_reason: string;
+      }>;
       usage?: { prompt_tokens: number; completion_tokens: number };
     };
     const choice = data.choices[0]!;
@@ -64,6 +81,7 @@ export class OpenAICompatProvider implements LlmProvider {
       id: tc.id,
       name: tc.function.name,
       arguments: tc.function.arguments,
+      extraContent: tc.extra_content,
     }));
     return {
       message: {
@@ -86,7 +104,7 @@ export function buildLlmProvider(): { provider: LlmProvider; model: string } | n
   const headers: Record<string, string> = {};
   if (provider === "gemini") {
     base = base || "https://generativelanguage.googleapis.com/v1beta/openai";
-    m = m || "gemini-2.5-flash";
+    m = m || "gemini-3.1-flash-lite";
   } else if (provider === "groq") {
     base = base || "https://api.groq.com/openai/v1";
     m = m || "openai/gpt-oss-120b";
@@ -103,5 +121,14 @@ export function buildLlmProvider(): { provider: LlmProvider; model: string } | n
   } else {
     return null;
   }
-  return { provider: new OpenAICompatProvider({ baseUrl: base, apiKey, model: m, extraHeaders: headers }), model: m };
+  return {
+    provider: new OpenAICompatProvider({
+      baseUrl: base,
+      apiKey,
+      model: m,
+      extraHeaders: headers,
+      reasoningEffort: provider === "gemini" ? config.llm.reasoningEffort : undefined,
+    }),
+    model: m,
+  };
 }

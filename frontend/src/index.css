@@ -3,43 +3,89 @@
 @tailwind utilities;
 
 @layer base {
-  html, body, #root { height: 100%; }
-  body {
-    @apply bg-base text-ink font-sans antialiased;
+  html,
+  body,
+  #root {
+    height: 100%;
   }
-  * { @apply border-line; }
-  ::selection { background: rgba(34,211,238,0.25); color: #f5f5f7; }
+  html {
+    color-scheme: light;
+    -webkit-text-size-adjust: 100%;
+  }
+  body {
+    @apply bg-base font-sans text-ink antialiased;
+    /* One lamp over the counter: the only ambient light in the room. */
+    background-image: radial-gradient(120% 70% at 50% -10%, #f8f0dd 0%, #efe4cd 55%, #e9dcc1 100%);
+    background-attachment: fixed;
+  }
+  * {
+    border-color: #dccdb0;
+  }
+  ::selection {
+    background: rgba(176, 30, 42, 0.16);
+    color: #1a1612;
+  }
+  :focus-visible {
+    outline: 2px solid #b01e2a;
+    outline-offset: 3px;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d3c3a4;
+    border: 3px solid #efe4cd;
+    border-radius: 999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #bfae8d;
+  }
+  textarea,
+  input,
+  select {
+    caret-color: #b01e2a;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
 }
 
 @layer components {
-  .card {
-    @apply bg-surface rounded-lg border border-line transition-colors;
+  .paper {
+    @apply rounded-lg border border-line bg-panel;
+    box-shadow: 0 1px 1px rgba(58, 44, 24, 0.08), 0 10px 30px -12px rgba(58, 44, 24, 0.28);
   }
-  .card-hover:hover {
-    @apply border-line-bright;
+  .label {
+    @apply text-[12px] font-bold uppercase tracking-[0.12em] text-dim;
   }
-  .glow-neon:focus-within, .glow-neon:focus {
-    box-shadow: 0 0 0 1px rgba(34,211,238,0.5), 0 0 16px rgba(34,211,238,0.12);
+  .num {
+    font-variant-numeric: tabular-nums;
   }
-  .btn-primary {
-    @apply bg-neon text-base font-semibold rounded-md px-4 py-2 transition hover:bg-neon/90 focus:outline-none focus:ring-2 focus:ring-neon/50;
+  /* Faint ledger rules, used only on the answer sheet. */
+  .ruled {
+    background-image: repeating-linear-gradient(
+      0deg,
+      transparent 0,
+      transparent 31px,
+      rgba(26, 22, 18, 0.045) 31px,
+      rgba(26, 22, 18, 0.045) 32px
+    );
   }
-  .btn-secondary {
-    @apply bg-surface-2 text-ink font-medium rounded-md px-4 py-2 border border-line transition hover:border-line-bright focus:outline-none focus:ring-2 focus:ring-neon/30;
-  }
-  .btn-ghost {
-    @apply text-ink-soft hover:text-ink transition;
+  .stamp {
+    @apply inline-flex items-center gap-1.5 rounded-sm border-2 px-2 py-1 text-[12px] font-extrabold uppercase tracking-[0.12em];
   }
   .input {
-    @apply bg-surface-2 border border-line rounded-md px-3 py-2 text-sm text-ink placeholder:text-ink-dim focus:outline-none focus:border-neon/60 focus:ring-1 focus:ring-neon/30 transition;
+    @apply h-12 w-full rounded-md border border-linehot bg-panel px-4 text-[16px] text-ink transition-colors placeholder:text-dim focus:border-brand/60 focus:outline-none;
   }
-  .badge {
-    @apply text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded border;
-  }
-  .badge-neon { @apply badge border-neon/40 text-neon bg-neon/5; }
-  .badge-pink { @apply badge border-neon-2/40 text-neon-2 bg-neon-2/5; }
-  .badge-success { @apply badge border-success/40 text-success bg-success/5; }
-  .badge-warn { @apply badge border-warning/40 text-warning bg-warning/5; }
-  .badge-danger { @apply badge border-danger/40 text-danger bg-danger/5; }
-  .num { font-variant-numeric: tabular-nums; }
 }
